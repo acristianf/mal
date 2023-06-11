@@ -2,20 +2,22 @@ ifeq ($(OS),Windows_NT)     # is Windows_NT on XP, 2000, 7, Vista, 10...
     windows := true
 endif
 
-CFLAGS=-Wextra -Werror
-SRC=reader.cpp
-EXTERNAL_SRC=editline/linenoise.c
+CC=gcc
+CFLAGS=-Wextra -Werror -ggdb
 
-step0_repl: 
-ifdef $(windows)
-	clang $(CFLAGS) step0_repl.cpp $(EXTERNAL_SRC) -o step0_repl.exe 
-else 
-	clang $(CFLAGS) step0_repl.cpp $(EXTERNAL_SRC) -o step0_repl
-endif
+build: step0_repl step1_read_print step2_eval
 
-step1_read_print: 
-ifdef $(windows)
-	clang $(CFLAGS) step1_read_print.cpp $(SRC) $(EXTERNAL_SRC) -o step1_read_print.exe 
-else 
-	clang $(CFLAGS) step1_read_print.cpp $(SRC) $(EXTERNAL_SRC) -o step1_read_print
-endif
+clean:
+	rm -f step0_repl step1_read_print step2_eval
+
+step0_repl: step0_repl.cpp reader.cpp editline/linenoise.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+step1_read_print: reader.cpp editline/linenoise.c 
+	$(CC) $(CFLAGS) $@.cpp $^ -o $@ 
+
+step2_eval: reader.cpp editline/linenoise.c hash_table.cpp
+	$(CC) $(CFLAGS) $@.cpp $^ -o $@ 
+
+hash_table:
+	$(CC) $(CFLAGS) $@.cpp $^ -o $@ 

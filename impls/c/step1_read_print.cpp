@@ -6,21 +6,20 @@
 
 #include "editline/linenoise.h"
 
+#include "printer.hpp"
 #include "reader.hpp"
+#include "types.hpp"
 
 #define INPUT_LINE "user> "
 #define LINE_MAX_INPUT 2048
 
-char *READ(char *line) {
-  read_str(line);
-  return line;
-};
+data_type_node_t *READ(char *line) { return read_str(line); };
 
-char *EVAL(char *line) { return line; }
+data_type_node_t *EVAL(data_type_node_t *ast) { return ast; }
 
-char *PRINT(char *line) { return line; }
+void PRINT(data_type_node_t *ast) { printf("%s\n", pt_str(ast)); }
 
-char *rep(char *line) { return PRINT(EVAL(READ(line))); }
+void rep(char *line) { PRINT(EVAL(READ(line))); }
 
 int main() {
 

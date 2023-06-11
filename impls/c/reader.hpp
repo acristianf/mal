@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#include "types.hpp"
+
 typedef enum token_type_t {
   TOK_ILLEGAL = 0,
   // Literals
@@ -16,11 +18,16 @@ typedef enum token_type_t {
   TOK_RBRACE,
   TOK_LCURLY,
   TOK_RCURLY,
-  TOK_COLON,
   TOK_COMMA,
   TOK_SINGLE_QUOTE,
   TOK_CIRCUMFLEX,
-  TOK_BACKTICK,
+  TOK_QUASIQUOTE,
+  // KEYWORDS
+  TOK_KEYWORD,
+  // RESERVED
+  TOK_FALSE,
+  TOK_TRUE,
+  TOK_NIL,
   // Comments
   TOK_COMMENT,
   // Special
@@ -40,5 +47,6 @@ typedef struct reader_t {
   token_t *current;
   token_t *token_list;
 } reader_t;
+extern reader_t reader;
 
-void read_str(const char *str);
+data_type_node_t *read_str(const char *str);
