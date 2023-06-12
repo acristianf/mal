@@ -5,10 +5,10 @@ endif
 CC=gcc
 CFLAGS=-Wextra -Werror -ggdb
 
-build: step0_repl step1_read_print step2_eval
+build: step3_env
 
 clean:
-	rm -f step0_repl step1_read_print step2_eval
+	rm -f step0_repl step1_read_print step2_eval step3_env
 
 step0_repl: step0_repl.cpp reader.cpp editline/linenoise.c
 	$(CC) $(CFLAGS) $^ -o $@
@@ -16,7 +16,10 @@ step0_repl: step0_repl.cpp reader.cpp editline/linenoise.c
 step1_read_print: reader.cpp editline/linenoise.c 
 	$(CC) $(CFLAGS) $@.cpp $^ -o $@ 
 
-step2_eval: reader.cpp editline/linenoise.c hash_table.cpp
+step2_eval: env.cpp reader.cpp editline/linenoise.c hash_table.cpp
+	$(CC) $(CFLAGS) $@.cpp $^ -o $@ 
+
+step3_env: env.cpp reader.cpp editline/linenoise.c hash_table.cpp
 	$(CC) $(CFLAGS) $@.cpp $^ -o $@ 
 
 hash_table:

@@ -89,21 +89,15 @@ data_type_node_t *eval_list(data_type_node_t *l, env_t *env) {
 data_type_node_t *eval_ast(data_type_node_t *ast, env_t *env) {
   switch (ast->type) {
   case VAL_SYMBOL: {
-    data_type_node_t r = hash_table_get(env->symbol_table, ast->string);
-    if (r.type == VAL_FN) {
-      data_type_node_t *f =
-          (data_type_node_t *)malloc(sizeof(data_type_node_t));
-      f->type = VAL_FN;
-      f->fun = r.fun;
-      return f;
-    } else {
-      data_type_node_t *e = NULL;
-      MEM_ALLOC(e, data_type_node_t);
-      e->type = VAL_NIL;
-      e->string = "";
-      e->next = NULL;
-      return e;
-    }
+    // TODO: Maybe try a better solution for the hash table
+    data_type_node_t r = env_get(env, ast->string);
+    // TODO: Maybe handle error better
+    if (r.type == VAL_NIL)
+      fprintf(stderr, "EVAL Error: '%s' not found.", ast->string);
+    data_type_node_t *result = NULL;
+    MEM_ALLOC(result, data_type_node_t);
+    *result = r;
+    return result;
   } break;
   case VAL_LIST: {
     return eval_list(ast, env);
@@ -121,14 +115,36 @@ data_type_node_t *eval_ast(data_type_node_t *ast, env_t *env) {
   return ast;
 }
 
+data_type_node_t *eval_def(data_type_node_t *ast, env_t *env) {
+  if (!ast->lst->next || !ast->lst->next->next) {
+    fprintf(stderr, "EVAL Error: def! needs a symbol and a value to bind. "
+                    "'def! sym val'.\n");
+    return ast;
+  }
+  const char *new_sym = ast->lst->next->string;
+  data_type_node_t *bind = EVAL(ast->lst->next->next, env);
+  env_set(env, new_sym, *bind);
+  return eval_ast(bind, env);
+}
+
 data_type_node_t *READ(char *line) { return read_str(line); };
 
 data_type_node_t *EVAL(data_type_node_t *ast, env_t *env) {
+  if (!ast) {
+    return NULL;
+  }
   if (ast->type != VAL_LIST) {
     return eval_ast(ast, env);
   }
-  if (ast->type == VAL_LIST && !ast->lst) {
-    return ast;
+  if (ast->type == VAL_LIST) {
+    if (!ast->lst) {
+      return ast;
+    } else if (ast->lst->type == VAL_SYMBOL) {
+      if (strcmp(ast->lst->string, "def!") == 0) {
+        return eval_def(ast, env);
+      } else if (strcmp(ast->lst->string, "let*") == 0) {
+      }
+    }
   }
 
   data_type_node_t *evalst = eval_ast(ast, env);

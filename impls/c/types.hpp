@@ -36,6 +36,14 @@ struct data_type_node_t {
   data_type_node_t *next;
 };
 
+inline extern data_type_node_t func_node_make(fn_t f) {
+  data_type_node_t r;
+  r.type = VAL_FN;
+  r.fun = f;
+  r.next = NULL;
+  return r;
+}
+
 // TODO: Implement other types
 inline extern data_type_node_t *add(data_type_node_t *args_list) {
   data_type_node_t *result = NULL;

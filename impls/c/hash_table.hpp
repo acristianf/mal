@@ -8,7 +8,7 @@
 
 typedef struct bucket_t {
   const char *key;
-  fn_t func;
+  data_type_node_t data;
   struct bucket_t *link;
 } bucket_t;
 
@@ -20,7 +20,7 @@ typedef struct t {
 
 t *hash_table_create(); 
 
-void hash_table_insert(t *ht, const char *key, fn_t func);
-fn_t hash_table_get(t *ht, const char *key);
+void hash_table_set(t *ht, const char *key, data_type_node_t data);
+data_type_node_t hash_table_get(t *ht, const char *key);
 
 #undef t
