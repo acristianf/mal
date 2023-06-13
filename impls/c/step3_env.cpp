@@ -127,6 +127,27 @@ data_type_node_t *eval_def(data_type_node_t *ast, env_t *env) {
   return eval_ast(bind, env);
 }
 
+data_type_node_t *eval_let(data_type_node_t *ast, env_t *env) {
+  env_t let_env;
+  env_create(&let_env, env);
+  assert(ast->lst->next->type == VAL_LIST ||
+         ast->lst->next->type == VAL_VECTOR ||
+         ast->lst->next->type == VAL_HASHMAP);
+  data_type_node_t *bind = ast->lst->next->lst;
+  while (bind) {
+    if (!bind->next) {
+      fprintf(stderr, "EVAL Error: let* needs a list of symbol and "
+                      "values to bind.\n");
+      return bind;
+    }
+    data_type_node_t *r = EVAL(bind->next, &let_env);
+    assert(bind->type == VAL_SYMBOL || bind->type == VAL_STRING);
+    env_set(&let_env, bind->string, *r);
+    bind = bind->next->next;
+  }
+  return EVAL(ast->lst->next->next, &let_env);
+}
+
 data_type_node_t *READ(char *line) { return read_str(line); };
 
 data_type_node_t *EVAL(data_type_node_t *ast, env_t *env) {
@@ -143,6 +164,7 @@ data_type_node_t *EVAL(data_type_node_t *ast, env_t *env) {
       if (strcmp(ast->lst->string, "def!") == 0) {
         return eval_def(ast, env);
       } else if (strcmp(ast->lst->string, "let*") == 0) {
+        return eval_let(ast, env);
       }
     }
   }
